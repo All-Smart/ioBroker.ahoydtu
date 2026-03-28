@@ -330,10 +330,11 @@ class Ahoydtu extends utils.Adapter {
 		});
 
 		const infoStates: Array<[string, ioBroker.StateCommon]> = [
-			["name", { name: "Inverter name", type: "string", role: "info.name", read: true, write: false, def: inv.name }],
-			["serial", { name: "Serial number", type: "string", role: "info.serial", read: true, write: false, def: inv.serial }],
+			["name", { name: "Inverter name", desc: "Configured name of the inverter in AhoyDTU", type: "string", role: "info.name", read: true, write: false, def: inv.name }],
+			["serial", { name: "Serial number", desc: "Hoymiles serial number of the inverter", type: "string", role: "info.serial", read: true, write: false, def: inv.serial }],
 			["status", {
 				name: "Status",
+				desc: "Communication status: 0=offline, 1=partial, 2=online (producing), 3=was producing, 4=was available",
 				type: "number",
 				role: "indicator",
 				read: true,
@@ -341,13 +342,13 @@ class Ahoydtu extends utils.Adapter {
 				states: { 0: "offline", 1: "partial", 2: "online", 3: "was producing", 4: "was available" },
 				def: 0,
 			}],
-			["version", { name: "Firmware version", type: "string", role: "info.firmware", read: true, write: false, def: "" }],
-			["alarm_cnt", { name: "Alarm count", type: "number", role: "value", read: true, write: false, def: 0 }],
-			["rssi", { name: "RSSI signal strength", type: "number", role: "value", unit: "dBm", read: true, write: false, def: 0 }],
-			["last_success", { name: "Last successful contact", type: "number", role: "date.timestamp", read: true, write: false, def: 0 }],
-			["max_power", { name: "Max inverter power", type: "number", role: "value.power.max", unit: "W", read: true, write: false, def: inv.ch_max_pwr[0] || 0 }],
-			["reachable", { name: "Reachable", type: "boolean", role: "indicator.reachable", read: true, write: false, def: false }],
-			["power_limit_pct", { name: "Current power limit", type: "number", role: "value", unit: "%", read: true, write: false, def: 0 }],
+			["version", { name: "Firmware version", desc: "Firmware version of the Hoymiles inverter MCU", type: "string", role: "info.firmware", read: true, write: false, def: "" }],
+			["alarm_cnt", { name: "Alarm count", desc: "Number of alarms/events since last MCU restart", type: "number", role: "value", read: true, write: false, def: 0 }],
+			["rssi", { name: "RSSI signal strength", desc: "WiFi signal strength of the AhoyDTU in dBm (e.g. -75 dBm)", type: "number", role: "value", unit: "dBm", read: true, write: false, def: 0 }],
+			["last_success", { name: "Last successful contact", desc: "Unix timestamp (ms) of the last successful radio contact with the inverter", type: "number", role: "date.timestamp", read: true, write: false, def: 0 }],
+			["max_power", { name: "Max inverter power", desc: "Maximum rated AC output power of the inverter in W", type: "number", role: "value.power.max", unit: "W", read: true, write: false, def: inv.ch_max_pwr[0] || 0 }],
+			["reachable", { name: "Reachable", desc: "true = inverter responded in the last poll cycle", type: "boolean", role: "indicator.reachable", read: true, write: false, def: false }],
+			["power_limit_pct", { name: "Current power limit", desc: "Active power limit readback from inverter in % (0 = no limit set / unknown)", type: "number", role: "value", unit: "%", read: true, write: false, def: 0 }],
 		];
 
 		for (const [id, common] of infoStates) {
@@ -366,18 +367,18 @@ class Ahoydtu extends utils.Adapter {
 		});
 
 		const acStates: Array<[string, ioBroker.StateCommon]> = [
-			["voltage", { name: "AC voltage", type: "number", role: "value.voltage", unit: "V", read: true, write: false, def: 0 }],
-			["current", { name: "AC current", type: "number", role: "value.current", unit: "A", read: true, write: false, def: 0 }],
-			["power", { name: "AC power", type: "number", role: "value.power", unit: "W", read: true, write: false, def: 0 }],
-			["reactive_power", { name: "AC reactive power", type: "number", role: "value.power", unit: "var", read: true, write: false, def: 0 }],
-			["frequency", { name: "AC frequency", type: "number", role: "value.frequency", unit: "Hz", read: true, write: false, def: 0 }],
-			["power_factor", { name: "AC power factor", type: "number", role: "value.factor", unit: "%", read: true, write: false, def: 0 }],
-			["temperature", { name: "Inverter temperature", type: "number", role: "value.temperature", unit: "°C", read: true, write: false, def: 0 }],
-			["yield_day", { name: "Daily yield", type: "number", role: "value.energy", unit: "Wh", read: true, write: false, def: 0 }],
-			["yield_total", { name: "Total yield", type: "number", role: "value.energy", unit: "kWh", read: true, write: false, def: 0 }],
-			["dc_power", { name: "DC total power", type: "number", role: "value.power", unit: "W", read: true, write: false, def: 0 }],
-			["efficiency", { name: "Efficiency", type: "number", role: "value.efficiency", unit: "%", read: true, write: false, def: 0 }],
-			["max_ac_power", { name: "Max AC power", type: "number", role: "value.power.max", unit: "W", read: true, write: false, def: 0 }],
+			["voltage", { name: "AC voltage", desc: "AC grid voltage in Volt", type: "number", role: "value.voltage", unit: "V", read: true, write: false, def: 0 }],
+			["current", { name: "AC current", desc: "AC output current in Ampere", type: "number", role: "value.current", unit: "A", read: true, write: false, def: 0 }],
+			["power", { name: "AC power", desc: "Current AC active power output in Watt", type: "number", role: "value.power", unit: "W", read: true, write: false, def: 0 }],
+			["reactive_power", { name: "AC reactive power", desc: "AC reactive power in var (non-active power component)", type: "number", role: "value.power", unit: "var", read: true, write: false, def: 0 }],
+			["frequency", { name: "AC frequency", desc: "Grid frequency in Hz (typically ~50 Hz in Europe)", type: "number", role: "value.frequency", unit: "Hz", read: true, write: false, def: 0 }],
+			["power_factor", { name: "AC power factor", desc: "Power factor: ratio of active to apparent power in % (100% = ideal)", type: "number", role: "value.factor", unit: "%", read: true, write: false, def: 0 }],
+			["temperature", { name: "Inverter temperature", desc: "Internal temperature of the inverter in °C", type: "number", role: "value.temperature", unit: "°C", read: true, write: false, def: 0 }],
+			["yield_day", { name: "Daily yield", desc: "Energy fed into the grid today (resets at midnight/MCU restart) in Wh", type: "number", role: "value.energy", unit: "Wh", read: true, write: false, def: 0 }],
+			["yield_total", { name: "Total yield", desc: "Total energy fed into the grid since last factory reset in kWh", type: "number", role: "value.energy", unit: "kWh", read: true, write: false, def: 0 }],
+			["dc_power", { name: "DC total power", desc: "Sum of all DC input power from solar panels in Watt", type: "number", role: "value.power", unit: "W", read: true, write: false, def: 0 }],
+			["efficiency", { name: "Efficiency", desc: "Conversion efficiency: AC power / DC power in % (typically 94–97%)", type: "number", role: "value.efficiency", unit: "%", read: true, write: false, def: 0 }],
+			["max_ac_power", { name: "Max AC power", desc: "Peak AC output power recorded since last MCU restart in Watt", type: "number", role: "value.power.max", unit: "W", read: true, write: false, def: 0 }],
 		];
 
 		for (const [id, common] of acStates) {
@@ -405,13 +406,13 @@ class Ahoydtu extends utils.Adapter {
 			});
 
 			const dcStates: Array<[string, ioBroker.StateCommon]> = [
-				["voltage", { name: `DC voltage CH${ch}`, type: "number", role: "value.voltage", unit: "V", read: true, write: false, def: 0 }],
-				["current", { name: `DC current CH${ch}`, type: "number", role: "value.current", unit: "A", read: true, write: false, def: 0 }],
-				["power", { name: `DC power CH${ch}`, type: "number", role: "value.power", unit: "W", read: true, write: false, def: 0 }],
-				["yield_day", { name: `Daily yield CH${ch}`, type: "number", role: "value.energy", unit: "Wh", read: true, write: false, def: 0 }],
-				["yield_total", { name: `Total yield CH${ch}`, type: "number", role: "value.energy", unit: "kWh", read: true, write: false, def: 0 }],
-				["irradiation", { name: `Irradiation CH${ch}`, type: "number", role: "value.irradiation", unit: "%", read: true, write: false, def: 0 }],
-				["max_power", { name: `Max power CH${ch}`, type: "number", role: "value.power.max", unit: "W", read: true, write: false, def: inv.ch_max_pwr[ch] || 0 }],
+				["voltage", { name: `DC voltage CH${ch}`, desc: `Solar string voltage on DC input channel ${ch} in Volt`, type: "number", role: "value.voltage", unit: "V", read: true, write: false, def: 0 }],
+				["current", { name: `DC current CH${ch}`, desc: `Solar string current on DC input channel ${ch} in Ampere`, type: "number", role: "value.current", unit: "A", read: true, write: false, def: 0 }],
+				["power", { name: `DC power CH${ch}`, desc: `Solar string power on DC input channel ${ch} in Watt`, type: "number", role: "value.power", unit: "W", read: true, write: false, def: 0 }],
+				["yield_day", { name: `Daily yield CH${ch}`, desc: `Energy harvested today on DC input channel ${ch} in Wh`, type: "number", role: "value.energy", unit: "Wh", read: true, write: false, def: 0 }],
+				["yield_total", { name: `Total yield CH${ch}`, desc: `Total energy harvested on DC input channel ${ch} since factory reset in kWh`, type: "number", role: "value.energy", unit: "kWh", read: true, write: false, def: 0 }],
+				["irradiation", { name: `Irradiation CH${ch}`, desc: `DC power as % of rated max power on channel ${ch} — indicates panel yield relative to its capacity`, type: "number", role: "value.irradiation", unit: "%", read: true, write: false, def: 0 }],
+				["max_power", { name: `Max power CH${ch}`, desc: `Peak DC power recorded on channel ${ch} since last MCU restart in Watt`, type: "number", role: "value.power.max", unit: "W", read: true, write: false, def: inv.ch_max_pwr[ch] || 0 }],
 			];
 
 			for (const [id, common] of dcStates) {
@@ -433,6 +434,7 @@ class Ahoydtu extends utils.Adapter {
 		const controlStates: Array<[string, ioBroker.StateCommon]> = [
 			["power", {
 				name: "Power on/off",
+				desc: "Turn inverter on (true) or off (false) via radio command. NOTE: This is NOT persistent — after a power cycle (e.g. night) the inverter will restart automatically. Use power_limit_watt=0 for a persistent off.",
 				type: "boolean",
 				role: "switch.power",
 				read: true,
@@ -441,6 +443,7 @@ class Ahoydtu extends utils.Adapter {
 			}],
 			["restart", {
 				name: "Restart inverter",
+				desc: "Restart the inverter MCU via radio command. Clears YieldDay, alarm history and any non-persistent power limit. Set to true to trigger.",
 				type: "boolean",
 				role: "button",
 				read: false,
@@ -449,6 +452,7 @@ class Ahoydtu extends utils.Adapter {
 			}],
 			["power_limit_percent", {
 				name: "Power limit (percent)",
+				desc: "Non-persistent power limit in % of max rated power (2–100%). Resets to 100% after inverter power cycle. For zero-feed-in control, write this value every cycle.",
 				type: "number",
 				role: "level.power",
 				unit: "%",
@@ -460,6 +464,7 @@ class Ahoydtu extends utils.Adapter {
 			}],
 			["power_limit_watt", {
 				name: "Power limit (watt)",
+				desc: "Non-persistent power limit in Watt (10–65535 W). Resets to 100% after inverter power cycle. Takes precedence over power_limit_percent when written last.",
 				type: "number",
 				role: "level.power",
 				unit: "W",
