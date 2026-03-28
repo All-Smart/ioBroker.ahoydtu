@@ -5,6 +5,10 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -21,8 +25,15 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var main_exports = {};
+__export(main_exports, {
+  Ahoydtu: () => Ahoydtu
+});
+module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_axios = __toESM(require("axios"));
+var import_deviceManagement = require("./lib/deviceManagement");
 const CH0_FIELDS = {
   U_AC: 0,
   I_AC: 1,
@@ -53,14 +64,43 @@ class Ahoydtu extends utils.Adapter {
   pollTimer = null;
   knownInverters = /* @__PURE__ */ new Map();
   liveData = null;
+  deviceManagement;
   constructor(options = {}) {
     super({
       ...options,
       name: "ahoydtu"
     });
+    this.deviceManagement = new import_deviceManagement.AhoydtuDeviceManagement(this);
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
     this.on("unload", this.onUnload.bind(this));
+  }
+  // ── Public helpers for DeviceManagement ───────────────────────────────────
+  /** Returns all known inverters (used by DeviceManagement) */
+  getKnownInverters() {
+    return this.knownInverters;
+  }
+  /** Returns an InverterConfig by sanitized device ID */
+  getInverterByDeviceId(deviceId) {
+    for (const [, inv] of this.knownInverters) {
+      if (this.sanitizeId(inv.name) === deviceId) {
+        return inv;
+      }
+    }
+    return void 0;
+  }
+  /** Sanitizes a name to a valid ioBroker object ID segment (public) */
+  sanitizeDeviceId(name) {
+    return this.sanitizeId(name);
+  }
+  /** Re-discovers inverters from DTU (called by DeviceManagement refresh action) */
+  async rediscoverInverters() {
+    this.knownInverters.clear();
+    await this.discoverInverters();
+  }
+  /** Sends a control command to an inverter (public for DeviceManagement) */
+  async sendInverterControl(inverterId, deviceId, cmd, val) {
+    await this.sendControl(inverterId, deviceId, cmd, val);
   }
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   async onReady() {
@@ -473,4 +513,8 @@ if (require.main !== module) {
 } else {
   (() => new Ahoydtu())();
 }
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  Ahoydtu
+});
 //# sourceMappingURL=main.js.map

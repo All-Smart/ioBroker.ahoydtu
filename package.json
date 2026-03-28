@@ -7,23 +7,28 @@
     "email": "skeletor-ai@all-smart.net"
   },
   "contributors": [],
-  "homepage": "https://github.com/Skeletor-ai/ioBroker.ahoydtu",
+  "homepage": "https://github.com/All-Smart/ioBroker.ahoydtu",
   "license": "MIT",
   "keywords": [
-    "template",
-    "automation",
-    "IoT",
-    "integration"
+    "ahoydtu",
+    "hoymiles",
+    "inverter",
+    "solar",
+    "pv",
+    "dtu",
+    "photovoltaik",
+    "balkonkraftwerk"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Skeletor-ai/ioBroker.ahoydtu.git"
+    "url": "https://github.com/All-Smart/ioBroker.ahoydtu.git"
   },
   "engines": {
     "node": ">= 18"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.3.2",
+    "@iobroker/dm-utils": "^3.0.9",
     "axios": "^1.7.9"
   },
   "devDependencies": {
@@ -61,7 +66,7 @@
     "translate": "translate-adapter"
   },
   "bugs": {
-    "url": "https://github.com/Skeletor-ai/ioBroker.ahoydtu/issues"
+    "url": "https://github.com/All-Smart/ioBroker.ahoydtu/issues"
   },
   "readmeFilename": "README.md"
 }

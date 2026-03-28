@@ -60,6 +60,16 @@
 					"xl": 4
 				}
 			}
+		},
+		"tab_devices": {
+			"type": "tab",
+			"label": "Devices",
+			"items": {
+				"deviceManager": {
+					"type": "deviceManager",
+					"xs": 12
+				}
+			}
 		}
 	}
 }

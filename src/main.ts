@@ -6,6 +6,7 @@
 
 import * as utils from "@iobroker/adapter-core";
 import axios, { AxiosInstance } from "axios";
+import { AhoydtuDeviceManagement } from "./lib/deviceManagement";
 
 // ─── API response types ───────────────────────────────────────────────────────
 
@@ -98,21 +99,62 @@ const DC_FIELDS = {
 
 // ─── Adapter class ────────────────────────────────────────────────────────────
 
-class Ahoydtu extends utils.Adapter {
+// exported for use in deviceManagement.ts
+export class Ahoydtu extends utils.Adapter {
 	private http: AxiosInstance | null = null;
 	private authToken: string | null = null;
 	private pollTimer: ReturnType<typeof setInterval> | null = null;
 	private knownInverters: Map<number, InverterConfig> = new Map();
 	private liveData: LiveResponse | null = null;
+	private readonly deviceManagement: AhoydtuDeviceManagement;
 
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
 			...options,
 			name: "ahoydtu",
 		});
+		this.deviceManagement = new AhoydtuDeviceManagement(this);
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
 		this.on("unload", this.onUnload.bind(this));
+	}
+
+	// ── Public helpers for DeviceManagement ───────────────────────────────────
+
+	/** Returns all known inverters (used by DeviceManagement) */
+	public getKnownInverters(): Map<number, InverterConfig> {
+		return this.knownInverters;
+	}
+
+	/** Returns an InverterConfig by sanitized device ID */
+	public getInverterByDeviceId(deviceId: string): InverterConfig | undefined {
+		for (const [, inv] of this.knownInverters) {
+			if (this.sanitizeId(inv.name) === deviceId) {
+				return inv;
+			}
+		}
+		return undefined;
+	}
+
+	/** Sanitizes a name to a valid ioBroker object ID segment (public) */
+	public sanitizeDeviceId(name: string): string {
+		return this.sanitizeId(name);
+	}
+
+	/** Re-discovers inverters from DTU (called by DeviceManagement refresh action) */
+	public async rediscoverInverters(): Promise<void> {
+		this.knownInverters.clear();
+		await this.discoverInverters();
+	}
+
+	/** Sends a control command to an inverter (public for DeviceManagement) */
+	public async sendInverterControl(
+		inverterId: number,
+		deviceId: string,
+		cmd: string,
+		val: ioBroker.StateValue,
+	): Promise<void> {
+		await this.sendControl(inverterId, deviceId, cmd, val);
 	}
 
 	// ── Lifecycle ──────────────────────────────────────────────────────────────

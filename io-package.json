@@ -63,8 +63,8 @@
 		"platform": "Javascript/Node.js",
 		"icon": "ahoydtu.png",
 		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/Skeletor-ai/ioBroker.ahoydtu/main/admin/ahoydtu.png",
-		"readme": "https://github.com/Skeletor-ai/ioBroker.ahoydtu/blob/main/README.md",
+		"extIcon": "https://raw.githubusercontent.com/All-Smart/ioBroker.ahoydtu/main/admin/ahoydtu.png",
+		"readme": "https://github.com/All-Smart/ioBroker.ahoydtu/blob/main/README.md",
 		"loglevel": "info",
 		"tier": 3,
 		"mode": "daemon",
@@ -72,6 +72,9 @@
 		"compact": true,
 		"adminUI": {
 			"config": "json"
+		},
+		"supportedMessages": {
+			"deviceManager": true
 		},
 		"dependencies": [
 			{
