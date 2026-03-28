@@ -1,10 +1,12 @@
 import { DeviceManagement, type DeviceLoadContext } from "@iobroker/dm-utils";
 import type { DeviceInfo, InstanceDetails, DeviceDetails } from "@iobroker/dm-utils";
-import type { Ahoydtu } from "../main";
+import type { InverterConfig, IAhoydtuAdapter } from "./types";
+
+export type { IAhoydtuAdapter };
 
 // ─── AhoyDTU Device Management (dm-utils v3) ─────────────────────────────────
 
-export class AhoydtuDeviceManagement extends DeviceManagement<Ahoydtu> {
+export class AhoydtuDeviceManagement extends DeviceManagement<IAhoydtuAdapter> {
 
 	/**
 	 * Returns instance-level info: api version and instance actions.

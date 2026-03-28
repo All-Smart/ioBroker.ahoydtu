@@ -7,8 +7,12 @@
 import * as utils from "@iobroker/adapter-core";
 import axios, { AxiosInstance } from "axios";
 import { AhoydtuDeviceManagement } from "./lib/deviceManagement";
+import type { InverterConfig as InverterConfigType } from "./lib/types";
 
 // ─── API response types ───────────────────────────────────────────────────────
+
+// Use the shared type (imported as alias to avoid re-export)
+type InverterConfig = InverterConfigType;
 
 interface LiveResponse {
 	generic: {
@@ -25,16 +29,6 @@ interface LiveResponse {
 	fld_names: string[];
 	fld_units: string[];
 	iv: boolean[];
-}
-
-interface InverterConfig {
-	id: number;
-	enabled: boolean;
-	name: string;
-	serial: string;
-	channels: number;
-	ch_name: string[];
-	ch_max_pwr: number[];
 }
 
 interface InverterListResponse {
@@ -99,8 +93,7 @@ const DC_FIELDS = {
 
 // ─── Adapter class ────────────────────────────────────────────────────────────
 
-// exported for use in deviceManagement.ts
-export class Ahoydtu extends utils.Adapter {
+class Ahoydtu extends utils.Adapter {
 	private http: AxiosInstance | null = null;
 	private authToken: string | null = null;
 	private pollTimer: ReturnType<typeof setInterval> | null = null;

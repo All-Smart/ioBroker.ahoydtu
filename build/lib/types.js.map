@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/lib/types.ts"],
+  "sourcesContent": ["// Shared types between main.ts and deviceManagement.ts\n// In a separate file so main.ts stays export-free (avoids ESBuild ESM warning)\n\nimport type * as utils from \"@iobroker/adapter-core\";\n\nexport interface InverterConfig {\n\tid: number;\n\tenabled: boolean;\n\tname: string;\n\tserial: string;\n\tchannels: number;\n\tch_name: string[];\n\tch_max_pwr: number[];\n}\n\nexport interface IAhoydtuAdapter extends utils.AdapterInstance {\n\tgetKnownInverters(): Map<number, InverterConfig>;\n\tgetInverterByDeviceId(deviceId: string): InverterConfig | undefined;\n\tsanitizeDeviceId(name: string): string;\n\trediscoverInverters(): Promise<void>;\n\tsendInverterControl(inverterId: number, deviceId: string, cmd: string, val: ioBroker.StateValue): Promise<void>;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}
