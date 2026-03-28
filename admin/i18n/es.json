@@ -1,5 +1,12 @@
 {
-	"ahoydtu adapter settings": "Ajustes del adaptador para ahoydtu",
-	"option1": "opción1",
-	"option2": "opción2"
+	"Connection": "Conexión",
+	"Host / IP address": "Host / Dirección IP",
+	"IP address or hostname of AhoyDTU": "Dirección IP o nombre de host de AhoyDTU",
+	"Port": "Puerto",
+	"HTTP port of AhoyDTU (usually 80)": "Puerto HTTP de AhoyDTU (normalmente 80)",
+	"Poll interval (seconds)": "Intervalo de sondeo (segundos)",
+	"How often to fetch data from AhoyDTU (min: 5s, default: 15s)": "Con qué frecuencia obtener datos de AhoyDTU (mín: 5s, predeterminado: 15s)",
+	"Password (optional)": "Contraseña (opcional)",
+	"Only required if AhoyDTU is password-protected": "Solo requerido si AhoyDTU está protegido por contraseña",
+	"Host is required": "El host es obligatorio"
 }

@@ -1,5 +1,12 @@
 {
-	"ahoydtu adapter settings": "Настройки адаптера для ahoydtu",
-	"option1": "вариант 1",
-	"option2": "вариант 2"
+	"Connection": "Подключение",
+	"Host / IP address": "Хост / IP-адрес",
+	"IP address or hostname of AhoyDTU": "IP-адрес или имя хоста AhoyDTU",
+	"Port": "Порт",
+	"HTTP port of AhoyDTU (usually 80)": "HTTP-порт AhoyDTU (обычно 80)",
+	"Poll interval (seconds)": "Интервал опроса (секунды)",
+	"How often to fetch data from AhoyDTU (min: 5s, default: 15s)": "Как часто получать данные от AhoyDTU (мин: 5с, по умолчанию: 15с)",
+	"Password (optional)": "Пароль (необязательно)",
+	"Only required if AhoyDTU is password-protected": "Требуется только если AhoyDTU защищён паролем",
+	"Host is required": "Хост обязателен"
 }

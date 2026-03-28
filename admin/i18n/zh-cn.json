@@ -1,5 +1,12 @@
 {
-	"ahoydtu adapter settings": "ahoydtu的适配器设置",
-	"option1": "选项1",
-	"option2": "选项2"
+	"Connection": "连接",
+	"Host / IP address": "主机 / IP地址",
+	"IP address or hostname of AhoyDTU": "AhoyDTU的IP地址或主机名",
+	"Port": "端口",
+	"HTTP port of AhoyDTU (usually 80)": "AhoyDTU的HTTP端口（通常为80）",
+	"Poll interval (seconds)": "轮询间隔（秒）",
+	"How often to fetch data from AhoyDTU (min: 5s, default: 15s)": "从AhoyDTU获取数据的频率（最小: 5秒，默认: 15秒）",
+	"Password (optional)": "密码（可选）",
+	"Only required if AhoyDTU is password-protected": "仅在AhoyDTU设置了密码保护时需要",
+	"Host is required": "主机是必填项"
 }

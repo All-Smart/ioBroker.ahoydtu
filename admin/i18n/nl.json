@@ -1,5 +1,12 @@
 {
-	"ahoydtu adapter settings": "Adapterinstellingen voor ahoydtu",
-	"option1": "optie1",
-	"option2": "optie2"
+	"Connection": "Verbinding",
+	"Host / IP address": "Host / IP-adres",
+	"IP address or hostname of AhoyDTU": "IP-adres of hostnaam van AhoyDTU",
+	"Port": "Poort",
+	"HTTP port of AhoyDTU (usually 80)": "HTTP-poort van AhoyDTU (meestal 80)",
+	"Poll interval (seconds)": "Polling-interval (seconden)",
+	"How often to fetch data from AhoyDTU (min: 5s, default: 15s)": "Hoe vaak gegevens ophalen van AhoyDTU (min: 5s, standaard: 15s)",
+	"Password (optional)": "Wachtwoord (optioneel)",
+	"Only required if AhoyDTU is password-protected": "Alleen vereist als AhoyDTU met een wachtwoord is beveiligd",
+	"Host is required": "Host is verplicht"
 }
