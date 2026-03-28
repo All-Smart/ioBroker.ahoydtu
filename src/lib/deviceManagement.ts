@@ -142,14 +142,7 @@ export class AhoydtuDeviceManagement extends DeviceManagement<IAhoydtuAdapter> {
 						},
 					},
 				],
-				controls: [
-					{
-						id: "power",
-						type: "switch",
-						label: { en: "Power", de: "Einspeisung" },
-						stateId: `${prefix}.control.power`,
-					},
-				],
+
 			};
 
 			context.addDevice(deviceInfo);
