@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Background -->
+  <rect width="256" height="256" rx="40" fill="#1a2942"/>
+
+  <!-- Sun (top center) -->
+  <circle cx="128" cy="72" r="28" fill="#f5a623"/>
+  <!-- Sun rays -->
+  <g stroke="#f5a623" stroke-width="5" stroke-linecap="round">
+    <line x1="128" y1="32" x2="128" y2="22"/>
+    <line x1="128" y1="112" x2="128" y2="122"/>
+    <line x1="88" y1="72" x2="78" y2="72"/>
+    <line x1="168" y1="72" x2="178" y2="72"/>
+    <line x1="100" y1="44" x2="93" y2="37"/>
+    <line x1="156" y1="44" x2="163" y2="37"/>
+    <line x1="100" y1="100" x2="93" y2="107"/>
+    <line x1="156" y1="100" x2="163" y2="107"/>
+  </g>
+
+  <!-- Solar panel (center) -->
+  <g transform="translate(52, 118)">
+    <!-- Panel frame -->
+    <rect width="152" height="96" rx="6" fill="#2c4a7a" stroke="#4a7abf" stroke-width="2"/>
+    <!-- Panel grid lines vertical -->
+    <line x1="50.67" y1="2" x2="50.67" y2="94" stroke="#4a7abf" stroke-width="1.5"/>
+    <line x1="101.33" y1="2" x2="101.33" y2="94" stroke="#4a7abf" stroke-width="1.5"/>
+    <!-- Panel grid lines horizontal -->
+    <line x1="2" y1="32" x2="150" y2="32" stroke="#4a7abf" stroke-width="1.5"/>
+    <line x1="2" y1="64" x2="150" y2="64" stroke="#4a7abf" stroke-width="1.5"/>
+    <!-- Cell highlight -->
+    <rect x="4" y="4" width="44" height="26" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="55" y="4" width="44" height="26" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="106" y="4" width="44" height="26" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="4" y="36" width="44" height="26" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="55" y="36" width="44" height="26" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="106" y="36" width="44" height="26" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="4" y="68" width="44" height="24" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="55" y="68" width="44" height="24" rx="2" fill="#3a6099" opacity="0.6"/>
+    <rect x="106" y="68" width="44" height="24" rx="2" fill="#3a6099" opacity="0.6"/>
+  </g>
+
+  <!-- WiFi arc (bottom) -->
+  <g transform="translate(128, 230)" fill="none" stroke="#f5a623" stroke-linecap="round">
+    <path d="M-32,-32 A45,45 0 0,1 32,-32" stroke-width="7" opacity="1"/>
+    <path d="M-20,-18 A28,28 0 0,1 20,-18" stroke-width="7" opacity="1"/>
+    <circle cx="0" cy="-4" r="6" fill="#f5a623" stroke="none"/>
+  </g>
+</svg>
