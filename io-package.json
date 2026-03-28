@@ -1,0 +1,96 @@
+{
+	"common": {
+		"name": "ahoydtu",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"uk": "Початкова версія",
+				"zh-cn": "首次出版"
+			}
+		},
+		"titleLang": {
+			"en": "AhoyDTU",
+			"de": "AhoiDTU",
+			"ru": "АхойДТУ",
+			"pt": "AhoyDTU",
+			"nl": "AhoyDTU",
+			"fr": "AhoyDTU",
+			"it": "Ciao DTU",
+			"es": "AhoyDTU",
+			"pl": "Ahoj, DTU",
+			"uk": "AhoyDTU",
+			"zh-cn": "阿霍伊DTU"
+		},
+		"desc": {
+			"en": "ioBroker adapter for AhoyDTU Hoymiles inverter gateway (REST API)",
+			"de": "ioBroker-Adapter für AhoyDTU Hoymiles Wechselrichter-Gateway (REST API)",
+			"ru": "Адаптер ioBroker для инверторного шлюза AhoyDTU Hoymiles (REST API)",
+			"pt": "Adaptador ioBroker para gateway inversor AhoyDTU Hoymiles (API REST)",
+			"nl": "ioBroker-adapter voor AhoyDTU Hoymiles omvormergateway (REST API)",
+			"fr": "Adaptateur ioBroker pour passerelle onduleur AhoyDTU Hoymiles (API REST)",
+			"it": "Adattatore ioBroker per gateway inverter AhoyDTU Hoymiles (API REST)",
+			"es": "Adaptador ioBroker para puerta de enlace inversor AhoyDTU Hoymiles (REST API)",
+			"pl": "Adapter ioBroker do bramki inwertera AhoyDTU Hoymiles (REST API)",
+			"uk": "Адаптер ioBroker для інверторного шлюзу AhoyDTU Hoymiles (REST API)",
+			"zh-cn": "适用于 AhoyDTU Hoymiles 逆变器网关的 ioBroker 适配器（REST API）"
+		},
+		"authors": [
+			"Skeletor-ai <skeletor-ai@all-smart.net>"
+		],
+		"keywords": [
+			"ahoydtu",
+			"hoymiles",
+			"inverter",
+			"solar",
+			"pv",
+			"dtu",
+			"photovoltaik",
+			"balkonkraftwerk"
+		],
+		"licenseInformation": {
+			"type": "free",
+			"license": "MIT"
+		},
+		"platform": "Javascript/Node.js",
+		"icon": "ahoydtu.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/Skeletor-ai/ioBroker.ahoydtu/main/admin/ahoydtu.png",
+		"readme": "https://github.com/Skeletor-ai/ioBroker.ahoydtu/blob/main/README.md",
+		"loglevel": "info",
+		"tier": 3,
+		"mode": "daemon",
+		"type": "hardware",
+		"compact": true,
+		"adminUI": {
+			"config": "json"
+		},
+		"dependencies": [
+			{
+				"js-controller": ">=6.0.11"
+			}
+		],
+		"globalDependencies": [
+			{
+				"admin": ">=7.0.23"
+			}
+		]
+	},
+	"native": {
+		"host": "192.168.0.156",
+		"port": 80,
+		"pollInterval": 15,
+		"password": ""
+	},
+	"protectedNative": ["password"],
+	"objects": [],
+	"instanceObjects": []
+}

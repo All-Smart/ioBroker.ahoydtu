@@ -1,0 +1,35 @@
+{
+	"adapterName": "ahoydtu",
+	"title": "AhoyDTU",
+	"description": "ioBroker adapter for AhoyDTU Hoymiles inverter gateway (REST API)",
+	"authorName": "Skeletor-ai",
+	"authorEmail": "skeletor-ai@all-smart.net",
+	"authorGithub": "Skeletor-ai",
+	"language": "TypeScript",
+	"adminFeatures": [
+		"jsonConfig"
+	],
+	"features": [
+		"adapter"
+	],
+	"type": "hardware",
+	"license": "MIT License",
+	"startMode": "daemon",
+	"connectionIndicator": true,
+	"useDevServer": true,
+	"releaseScript": false,
+	"gitCommit": false,
+	"tools": [],
+	"indentation": "Tab",
+	"quotes": "double",
+	"es2017": true,
+	"nodeVersion": "18",
+	"replay": "/home/clawdbot/clawd/ioBroker.ahoydtu/.create-adapter.json",
+	"expert": "",
+	"connectionType": "",
+	"dataSource": "",
+	"adminUi": "json",
+	"gitRemoteProtocol": "HTTPS",
+	"dependabot": "yes",
+	"creatorVersion": "3.1.2"
+}
