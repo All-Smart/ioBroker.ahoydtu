@@ -113,6 +113,17 @@ touched.
 
 ## Changelog
 
+### 0.1.0 (2026-07-30)
+- **Fixed:** `info.reachable` was derived from `status >= 1`, which counted the Ahoy states
+  `WAS_PRODUCING` (3) and `WAS_ON` (4) as reachable although both mean the inverter is gone.
+  Reachability now requires status 1 or 2 **and** a recent `ts_last_success`.
+- **Fixed:** the DTU keeps serving the last measurement set it received, so stale readings were
+  published as current values. Momentary values are now reset to 0 (`ac.temperature` to `null`)
+  when an inverter or the whole DTU goes offline; counters keep their last value and everything
+  is flagged with quality `0x02`.
+- **Added:** `ac.yield_day` and `dc.ch{N}.yield_day` are zeroed at local midnight, so an inverter
+  that stays offline over night no longer shows yesterday's yield until sunrise.
+
 ### 0.0.1 (2026-03-28)
 - Initial release
 

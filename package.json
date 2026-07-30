@@ -1,6 +1,6 @@
 {
   "name": "iobroker.ahoydtu",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "ioBroker adapter for AhoyDTU Hoymiles inverter gateway (REST API)",
   "author": {
     "name": "Skeletor-ai",

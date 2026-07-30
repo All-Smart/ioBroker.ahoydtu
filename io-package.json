@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ahoydtu",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "news": {
+      "0.1.0": {
+        "en": "Live values are reset when an inverter or the DTU is offline (counters keep their last value, quality 0x02); fixed reachable detection; daily yield counters are zeroed at local midnight",
+        "de": "Live-Werte werden zurückgesetzt, wenn ein Wechselrichter oder die DTU offline ist (Zähler behalten ihren letzten Wert, Qualität 0x02); Erreichbarkeitserkennung korrigiert; Tagesertragszähler werden um lokale Mitternacht genullt",
+        "ru": "Текущие значения сбрасываются, когда инвертор или DTU недоступны (счётчики сохраняют последнее значение, качество 0x02); исправлено определение доступности; счётчики дневной выработки обнуляются в местную полночь",
+        "pt": "Os valores atuais são redefinidos quando um inversor ou o DTU está offline (os contadores mantêm o último valor, qualidade 0x02); deteção de disponibilidade corrigida; os contadores de produção diária são zerados à meia-noite local",
+        "nl": "Actuele waarden worden gereset wanneer een omvormer of de DTU offline is (tellers behouden hun laatste waarde, kwaliteit 0x02); bereikbaarheidsdetectie gecorrigeerd; dagopbrengsttellers worden om lokale middernacht op nul gezet",
+        "fr": "Les valeurs instantanées sont réinitialisées lorsqu'un onduleur ou le DTU est hors ligne (les compteurs conservent leur dernière valeur, qualité 0x02) ; détection de disponibilité corrigée ; les compteurs de production journalière sont remis à zéro à minuit local",
+        "it": "I valori istantanei vengono azzerati quando un inverter o il DTU è offline (i contatori mantengono l'ultimo valore, qualità 0x02); rilevamento della raggiungibilità corretto; i contatori di resa giornaliera vengono azzerati alla mezzanotte locale",
+        "es": "Los valores instantáneos se restablecen cuando un inversor o el DTU está desconectado (los contadores mantienen su último valor, calidad 0x02); detección de disponibilidad corregida; los contadores de rendimiento diario se ponen a cero a la medianoche local",
+        "pl": "Wartości chwilowe są zerowane, gdy falownik lub DTU jest offline (liczniki zachowują ostatnią wartość, jakość 0x02); poprawiono wykrywanie dostępności; liczniki dziennego uzysku są zerowane o lokalnej północy",
+        "uk": "Поточні значення скидаються, коли інвертор або DTU недоступний (лічильники зберігають останнє значення, якість 0x02); виправлено визначення доступності; лічильники добової генерації обнулюються о місцевій півночі",
+        "zh-cn": "当逆变器或 DTU 离线时重置实时数值（计数器保留最后数值，质量 0x02）；修复可达性判断；每日发电量计数器在当地午夜清零"
+      },
       "0.0.1": {
         "en": "initial release",
         "de": "Erstveröffentlichung",
