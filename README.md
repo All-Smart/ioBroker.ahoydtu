@@ -98,6 +98,11 @@ As soon as an inverter (or the whole DTU) goes offline:
 * all of these values get quality code `0x02` ("no connection to device"), so stale data stays
   recognisable in VIS and scripts
 
+At local midnight the daily counters (`ac.yield_day`, `dc.ch{N}.yield_day`) are zeroed by the
+adapter, because the DTU only resets them once the inverter reports back — otherwise an inverter
+that is offline over night would show yesterday's yield until sunrise. Total counters are never
+touched.
+
 ### `{inverter}.control.*` (writable)
 | ID | Role | Unit | Description |
 |----|------|------|-------------|

@@ -66,6 +66,7 @@ class Ahoydtu extends utils.Adapter {
   http = null;
   authToken = null;
   pollTimer = null;
+  midnightTimer;
   knownInverters = /* @__PURE__ */ new Map();
   liveData = null;
   /** DTU clock minus local clock in seconds - used to age ts_last_success */
@@ -165,6 +166,7 @@ class Ahoydtu extends utils.Adapter {
         await this.setAllInvertersOffline();
       }
     }, interval * 1e3);
+    this.scheduleMidnightReset();
     this.subscribeStates("*.control.*");
   }
   onUnload(callback) {
@@ -172,6 +174,10 @@ class Ahoydtu extends utils.Adapter {
       if (this.pollTimer) {
         clearInterval(this.pollTimer);
         this.pollTimer = null;
+      }
+      if (this.midnightTimer) {
+        this.clearTimeout(this.midnightTimer);
+        this.midnightTimer = void 0;
       }
       this.setState("info.connection", false, true);
       callback();
@@ -512,6 +518,34 @@ class Ahoydtu extends utils.Adapter {
     const state = await this.getStateAsync(id);
     if (!state) return;
     await this.setStateAsync(id, { val: state.val, ack: true, q: Q_NO_CONNECTION });
+  }
+  // ── Midnight reset ────────────────────────────────────────────────────────
+  /** Schedules the next daily yield reset at local midnight (re-arms itself, DST-safe) */
+  scheduleMidnightReset() {
+    const now = /* @__PURE__ */ new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 10);
+    this.midnightTimer = this.setTimeout(async () => {
+      this.midnightTimer = void 0;
+      await this.resetDailyYield();
+      this.scheduleMidnightReset();
+    }, next.getTime() - now.getTime());
+  }
+  /**
+   * The DTU only zeroes yield_day once the inverter reports back, so an inverter that
+   * stays offline over night keeps yesterday's value until sunrise. Reset it locally.
+   * Total counters are left untouched.
+   */
+  async resetDailyYield() {
+    this.log.debug("Midnight - resetting daily yield counters");
+    for (const [, inv] of this.knownInverters) {
+      const deviceId = this.sanitizeId(inv.name);
+      const q = this.onlineState.get(inv.id) === false ? Q_NO_CONNECTION : 0;
+      await this.setStateAsync(`${deviceId}.ac.yield_day`, { val: 0, ack: true, q });
+      const dcChannels = inv.channels || 1;
+      for (let ch = 1; ch <= dcChannels; ch++) {
+        await this.setStateAsync(`${deviceId}.dc.ch${ch}.yield_day`, { val: 0, ack: true, q });
+      }
+    }
   }
   // ── Control ───────────────────────────────────────────────────────────────
   async onStateChange(id, state) {

@@ -123,6 +123,7 @@ class Ahoydtu extends utils.Adapter {
 	private http: AxiosInstance | null = null;
 	private authToken: string | null = null;
 	private pollTimer: ReturnType<typeof setInterval> | null = null;
+	private midnightTimer: ioBroker.Timeout | undefined;
 	private knownInverters: Map<number, InverterConfig> = new Map();
 	private liveData: LiveResponse | null = null;
 	/** DTU clock minus local clock in seconds - used to age ts_last_success */
@@ -255,6 +256,9 @@ class Ahoydtu extends utils.Adapter {
 			}
 		}, interval * 1000);
 
+		// Zero the daily yield counters at local midnight
+		this.scheduleMidnightReset();
+
 		// Subscribe to writable control states
 		this.subscribeStates("*.control.*");
 	}
@@ -264,6 +268,10 @@ class Ahoydtu extends utils.Adapter {
 			if (this.pollTimer) {
 				clearInterval(this.pollTimer);
 				this.pollTimer = null;
+			}
+			if (this.midnightTimer) {
+				this.clearTimeout(this.midnightTimer);
+				this.midnightTimer = undefined;
 			}
 			this.setState("info.connection", false, true);
 			callback();
@@ -669,6 +677,41 @@ class Ahoydtu extends utils.Adapter {
 		const state = await this.getStateAsync(id);
 		if (!state) return;
 		await this.setStateAsync(id, { val: state.val, ack: true, q: Q_NO_CONNECTION });
+	}
+
+	// ── Midnight reset ────────────────────────────────────────────────────────
+
+	/** Schedules the next daily yield reset at local midnight (re-arms itself, DST-safe) */
+	private scheduleMidnightReset(): void {
+		const now = new Date();
+		// 10 s past midnight, so timer drift cannot fire us on the previous day
+		const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 10);
+		this.midnightTimer = this.setTimeout(async () => {
+			this.midnightTimer = undefined;
+			await this.resetDailyYield();
+			this.scheduleMidnightReset();
+		}, next.getTime() - now.getTime());
+	}
+
+	/**
+	 * The DTU only zeroes yield_day once the inverter reports back, so an inverter that
+	 * stays offline over night keeps yesterday's value until sunrise. Reset it locally.
+	 * Total counters are left untouched.
+	 */
+	private async resetDailyYield(): Promise<void> {
+		this.log.debug("Midnight - resetting daily yield counters");
+
+		for (const [, inv] of this.knownInverters) {
+			const deviceId = this.sanitizeId(inv.name);
+			// A still-offline inverter keeps the stale flag on the substituted value
+			const q = this.onlineState.get(inv.id) === false ? Q_NO_CONNECTION : 0;
+
+			await this.setStateAsync(`${deviceId}.ac.yield_day`, { val: 0, ack: true, q });
+			const dcChannels = inv.channels || 1;
+			for (let ch = 1; ch <= dcChannels; ch++) {
+				await this.setStateAsync(`${deviceId}.dc.ch${ch}.yield_day`, { val: 0, ack: true, q });
+			}
+		}
 	}
 
 	// ── Control ───────────────────────────────────────────────────────────────
