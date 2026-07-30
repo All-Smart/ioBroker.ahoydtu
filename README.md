@@ -45,13 +45,13 @@ Install via ioBroker Admin as usual.
 |----|------|------|-------------|
 | name | info.name | - | Inverter name |
 | serial | info.serial | - | Serial number |
-| status | indicator | - | 0=offline, 1=partial, 2=online |
+| status | indicator | - | 0=offline, 1=starting, 2=producing, 3=was producing, 4=was available |
 | version | info.firmware | - | Firmware version |
 | alarm_cnt | value | - | Alarm counter |
 | rssi | value | dBm | WiFi signal strength |
 | last_success | date.timestamp | ms | Last successful contact |
 | max_power | value.power.max | W | Maximum inverter power |
-| reachable | indicator.reachable | - | Is inverter reachable |
+| reachable | indicator.reachable | - | Is inverter reachable (status 1 or 2 **and** recent contact) |
 | power_limit_pct | value | % | Current power limit readback |
 
 ### `{inverter}.ac.*`
@@ -80,6 +80,23 @@ Install via ioBroker Admin as usual.
 | yield_total | value.energy | kWh | Total energy for this string |
 | irradiation | value.irradiation | % | DC power / rated max power |
 | max_power | value.power.max | W | Peak DC power for this string |
+
+## Offline behaviour
+
+The AhoyDTU keeps serving the last measurement set it received from an inverter, even
+when the inverter has been gone for hours (night, radio loss). The adapter therefore does
+not trust the payload alone: an inverter counts as online only if `status` is 1 or 2 **and**
+`ts_last_success` is newer than `max(3 × poll interval, 120 s)`.
+
+As soon as an inverter (or the whole DTU) goes offline:
+
+* momentary readings (`ac.voltage/current/power/reactive_power/frequency/power_factor/efficiency/dc_power`,
+  `dc.ch{N}.voltage/current/power/irradiation`) are reset to `0`
+* `ac.temperature` is set to `null` — `0 °C` would look like a valid reading
+* counters (`yield_day`, `yield_total`, `max_ac_power`, `dc.ch{N}.max_power`) keep their last
+  value, zeroing them would corrupt history and statistics
+* all of these values get quality code `0x02` ("no connection to device"), so stale data stays
+  recognisable in VIS and scripts
 
 ### `{inverter}.control.*` (writable)
 | ID | Role | Unit | Description |

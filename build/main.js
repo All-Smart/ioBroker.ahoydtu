@@ -48,12 +48,30 @@ const DC_FIELDS = {
   Irradiation: 5,
   MaxPower: 6
 };
+const Q_NO_CONNECTION = 2;
+const AC_LIVE_STATES = [
+  "voltage",
+  "current",
+  "power",
+  "reactive_power",
+  "frequency",
+  "power_factor",
+  "efficiency",
+  "dc_power"
+];
+const AC_KEEP_STATES = ["yield_day", "yield_total", "max_ac_power"];
+const DC_LIVE_STATES = ["voltage", "current", "power", "irradiation"];
+const DC_KEEP_STATES = ["yield_day", "yield_total", "max_power"];
 class Ahoydtu extends utils.Adapter {
   http = null;
   authToken = null;
   pollTimer = null;
   knownInverters = /* @__PURE__ */ new Map();
   liveData = null;
+  /** DTU clock minus local clock in seconds - used to age ts_last_success */
+  dtuTimeOffset = 0;
+  /** Last known online state per inverter id - offline reset runs on the edge only */
+  onlineState = /* @__PURE__ */ new Map();
   deviceManagement;
   constructor(options = {}) {
     super({
@@ -86,6 +104,7 @@ class Ahoydtu extends utils.Adapter {
   /** Re-discovers inverters from DTU (called by DeviceManagement refresh action) */
   async rediscoverInverters() {
     this.knownInverters.clear();
+    this.onlineState.clear();
     await this.discoverInverters();
   }
   /** Sends a control command to an inverter (public for DeviceManagement) */
@@ -134,6 +153,7 @@ class Ahoydtu extends utils.Adapter {
     } catch (err) {
       this.log.error(`Initial connection failed: ${err.message}`);
       this.setState("info.connection", false, true);
+      await this.setAllInvertersOffline();
     }
     this.pollTimer = setInterval(async () => {
       try {
@@ -142,10 +162,7 @@ class Ahoydtu extends utils.Adapter {
       } catch (err) {
         this.log.warn(`Poll failed: ${err.message}`);
         this.setState("info.connection", false, true);
-        for (const [, inv] of this.knownInverters) {
-          const deviceId = this.sanitizeId(inv.name);
-          await this.setStateAsync(`${deviceId}.info.reachable`, false, true);
-        }
+        await this.setAllInvertersOffline();
       }
     }, interval * 1e3);
     this.subscribeStates("*.control.*");
@@ -187,13 +204,20 @@ class Ahoydtu extends utils.Adapter {
     return {};
   }
   // ── Discovery ─────────────────────────────────────────────────────────────
-  async discoverInverters() {
+  /** Fetches /api/live and refreshes the DTU clock offset */
+  async fetchLiveData() {
     if (!this.http) return;
-    const liveRes = await this.http.get("/api/live", {
+    const res = await this.http.get("/api/live", {
       headers: this.getAuthHeaders()
     });
-    this.liveData = liveRes.data;
-    this.log.debug(`AhoyDTU firmware: ${this.liveData.generic.version}`);
+    this.liveData = res.data;
+    this.dtuTimeOffset = res.data.generic.ts_now - Math.floor(Date.now() / 1e3);
+  }
+  async discoverInverters() {
+    var _a;
+    if (!this.http) return;
+    await this.fetchLiveData();
+    this.log.debug(`AhoyDTU firmware: ${(_a = this.liveData) == null ? void 0 : _a.generic.version}`);
     const listRes = await this.http.get("/api/inverter/list", {
       headers: this.getAuthHeaders()
     });
@@ -365,6 +389,7 @@ class Ahoydtu extends utils.Adapter {
   // ── Polling ───────────────────────────────────────────────────────────────
   async pollInverters() {
     if (!this.http) return;
+    await this.fetchLiveData();
     for (const [id, inv] of this.knownInverters) {
       try {
         const res = await this.http.get(`/api/inverter/id/${id}`, {
@@ -373,19 +398,29 @@ class Ahoydtu extends utils.Adapter {
         await this.updateInverterStates(inv, res.data);
       } catch (err) {
         this.log.warn(`Failed to poll inverter ${inv.name} (id=${id}): ${err.message}`);
-        const deviceId = this.sanitizeId(inv.name);
-        await this.setStateAsync(`${deviceId}.info.reachable`, false, true);
+        await this.setInverterOffline(inv);
       }
     }
+  }
+  /** Current DTU time in seconds (local clock corrected by the DTU offset) */
+  dtuNow() {
+    return Math.floor(Date.now() / 1e3) + this.dtuTimeOffset;
+  }
+  /**
+   * The DTU keeps serving the last received measurement set forever, so the payload
+   * alone never tells us whether an inverter is still there. Two independent checks:
+   * the Ahoy status enum (0=OFF, 1=STARTING, 2=PRODUCING, 3=WAS_PRODUCING, 4=WAS_ON -
+   * 3 and 4 are explicitly "not reachable anymore") and the age of ts_last_success.
+   */
+  isInverterOnline(data) {
+    const statusOk = data.status === 1 || data.status === 2;
+    const maxAge = Math.max(3 * (this.config.pollInterval || 15), 120);
+    const fresh = data.ts_last_success > 0 && this.dtuNow() - data.ts_last_success < maxAge;
+    return statusOk && fresh;
   }
   async updateInverterStates(inv, data) {
     const deviceId = this.sanitizeId(inv.name);
     const ch = data.ch;
-    if (!ch || ch.length === 0) {
-      this.log.warn(`No channel data for inverter ${inv.name}`);
-      await this.setStateAsync(`${deviceId}.info.reachable`, false, true);
-      return;
-    }
     await this.setStateAsync(`${deviceId}.info.name`, { val: data.name, ack: true });
     await this.setStateAsync(`${deviceId}.info.serial`, { val: data.serial, ack: true });
     await this.setStateAsync(`${deviceId}.info.status`, { val: data.status, ack: true });
@@ -394,8 +429,17 @@ class Ahoydtu extends utils.Adapter {
     await this.setStateAsync(`${deviceId}.info.rssi`, { val: data.rssi, ack: true });
     await this.setStateAsync(`${deviceId}.info.last_success`, { val: data.ts_last_success * 1e3, ack: true });
     await this.setStateAsync(`${deviceId}.info.max_power`, { val: data.max_pwr, ack: true });
-    await this.setStateAsync(`${deviceId}.info.reachable`, { val: data.status >= 1, ack: true });
     await this.setStateAsync(`${deviceId}.info.power_limit_pct`, { val: data.power_limit_read, ack: true });
+    const online = this.isInverterOnline(data);
+    if (!online || !ch || ch.length === 0) {
+      if (online) {
+        this.log.warn(`No channel data for inverter ${inv.name}`);
+      }
+      await this.setInverterOffline(inv);
+      return;
+    }
+    await this.setStateAsync(`${deviceId}.info.reachable`, { val: true, ack: true });
+    this.onlineState.set(inv.id, true);
     if (ch[0] && ch[0].length > CH0_FIELDS.MaxPower) {
       const ac = ch[0];
       await this.setStateAsync(`${deviceId}.ac.voltage`, { val: this.round(ac[CH0_FIELDS.U_AC], 1), ack: true });
@@ -424,6 +468,50 @@ class Ahoydtu extends utils.Adapter {
       await this.setStateAsync(`${deviceId}.dc.ch${chIdx}.max_power`, { val: this.round(dc[DC_FIELDS.MaxPower], 1), ack: true });
     }
     await this.setStateAsync(`${deviceId}.control.power_limit_percent`, { val: data.power_limit_read, ack: true });
+  }
+  // ── Offline handling ──────────────────────────────────────────────────────
+  /** Marks one inverter unreachable; live values are reset on the online→offline edge only */
+  async setInverterOffline(inv) {
+    const deviceId = this.sanitizeId(inv.name);
+    await this.setStateAsync(`${deviceId}.info.reachable`, { val: false, ack: true });
+    if (this.onlineState.get(inv.id) === false) return;
+    this.onlineState.set(inv.id, false);
+    await this.clearLiveValues(inv);
+  }
+  async setAllInvertersOffline() {
+    for (const [, inv] of this.knownInverters) {
+      await this.setInverterOffline(inv);
+    }
+  }
+  /**
+   * Resets momentary readings to 0 and flags every value of the inverter as stale.
+   * Counters keep their last value - zeroing them would corrupt history and statistics.
+   */
+  async clearLiveValues(inv) {
+    const deviceId = this.sanitizeId(inv.name);
+    this.log.debug(`Inverter ${inv.name} is offline - resetting live values`);
+    for (const id of AC_LIVE_STATES) {
+      await this.setStateAsync(`${deviceId}.ac.${id}`, { val: 0, ack: true, q: Q_NO_CONNECTION });
+    }
+    await this.setStateAsync(`${deviceId}.ac.temperature`, { val: null, ack: true, q: Q_NO_CONNECTION });
+    for (const id of AC_KEEP_STATES) {
+      await this.markStale(`${deviceId}.ac.${id}`);
+    }
+    const dcChannels = inv.channels || 1;
+    for (let ch = 1; ch <= dcChannels; ch++) {
+      for (const id of DC_LIVE_STATES) {
+        await this.setStateAsync(`${deviceId}.dc.ch${ch}.${id}`, { val: 0, ack: true, q: Q_NO_CONNECTION });
+      }
+      for (const id of DC_KEEP_STATES) {
+        await this.markStale(`${deviceId}.dc.ch${ch}.${id}`);
+      }
+    }
+  }
+  /** Keeps the last value but flags it with the "no connection" quality code */
+  async markStale(id) {
+    const state = await this.getStateAsync(id);
+    if (!state) return;
+    await this.setStateAsync(id, { val: state.val, ack: true, q: Q_NO_CONNECTION });
   }
   // ── Control ───────────────────────────────────────────────────────────────
   async onStateChange(id, state) {
